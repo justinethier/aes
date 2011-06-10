@@ -31,6 +31,8 @@ printf("\n");
   printf("\n");
   inv_shift_rows(msg, 16);
   print_block(msg, 16);
+
+// TODO: cannot use strcmp because it stops on 0!
 // TODO: assert inv is equal to original
   assert( strcmp(msg, "0123456789ABCDE") == 0 );
 }
@@ -98,6 +100,7 @@ void test_key_schedule_128bitkey(){
   printf("\n");
   print_keys(expected, 176);
 
+// TODO: cannot use strcmp because it stops on 0!
   assert( strcmp(keys, expected) == 0 );
 }
 
