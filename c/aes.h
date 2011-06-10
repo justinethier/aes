@@ -10,5 +10,5 @@ unsigned char mul_in_gf(unsigned char a, unsigned char b);
 
 void add_round_key(unsigned char block[], int size, unsigned char key_schedule[], int round);
 void key_schedule(unsigned char *keys, int size);
-unsigned int key_schedule_core(unsigned char word[], int i);
+void key_schedule_core(unsigned char word[], int i);
 
