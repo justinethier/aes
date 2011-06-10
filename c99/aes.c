@@ -291,12 +291,12 @@ void key_schedule(unsigned char *keys, int size){
 
     int i = 1, k=size;
     // b has a value of 176 for 128-bit keys, 208 for 192-bit keys, and 240 for 256-bit keys 
-    for (int bKey = 1; /*b < 176 / size*/ bKey < size + 1; bKey++){
+    for (int bKey = 1; bKey < 11; bKey++){
       unsigned char t[4] = {keys[bKey*size - 4], keys[bKey*size - 3], keys[bKey*size - 2], keys[bKey*size - 1]};
       key_schedule_core(t, i);
       i += 1;
       for(int idx = 0; idx < 4; idx++){
-        keys[bKey*(size+1) + idx] = (t[idx] ^ keys[bKey*size - 16]);
+        keys[bKey*(size) + idx] = (t[idx] ^ keys[bKey*size - 16]);
       }
 
       for (int c = 0; c < 3; c++){
@@ -306,7 +306,7 @@ void key_schedule(unsigned char *keys, int size){
                               keys[bKey*size - 2 + index], 
                               keys[bKey*size - 1 + index]};
         for (int cc = 0; cc < 4; cc++){
-          keys[bKey*(size+1) + cc + index] = (t[cc] ^ keys[bKey*size - 16 + index]);
+          keys[bKey*(size) + cc + index] = (t[cc] ^ keys[bKey*size - 16 + index]);
         }
       }
     }
