@@ -280,7 +280,9 @@ void add_round_key(unsigned char block[], int size, unsigned char key_schedule[]
 /**
  * 
  * Input: AES Key (an array of bytes)
- * Output: Array of Keys, one for each round
+ *   actually, this array needs to be large enough to hold b bytes of expanded
+ *   key, including the first n bytes which are the AES key.
+ * Output: Array of Keys, one for each round. Output is to the same array
  *
  */ 
 void key_schedule(unsigned char *keys, int size){
@@ -289,18 +291,22 @@ void key_schedule(unsigned char *keys, int size){
 
     int i = 1, k=size;
     // b has a value of 176 for 128-bit keys, 208 for 192-bit keys, and 240 for 256-bit keys 
-    for (int b = 0; /*b < 176 / size*/ k < 176; b++){
-      unsigned char t[4] = {keys[size-4], keys[size-3], keys[size-2], keys[size-1]};
+    for (int bKey = 1; /*b < 176 / size*/ bKey < size + 1; bKey++){
+      unsigned char t[4] = {keys[bKey*size - 4], keys[bKey*size - 3], keys[bKey*size - 2], keys[bKey*size - 1]};
       key_schedule_core(t, i);
       i += 1;
       for(int idx = 0; idx < 4; idx++){
-        keys[k++] = (t[idx] ^ keys[size-16]);
+        keys[bKey*(size+1) + idx] = (t[idx] ^ keys[bKey*size - 16]);
       }
 
       for (int c = 0; c < 3; c++){
-        unsigned char t[4] = {keys[size-4], keys[size-3], keys[size-2], keys[size-1]};
+        int index = 4 * (c+1);
+        unsigned char t[4] = {keys[bKey*size - 4 + index],
+                              keys[bKey*size - 3 + index], 
+                              keys[bKey*size - 2 + index], 
+                              keys[bKey*size - 1 + index]};
         for (int cc = 0; cc < 4; cc++){
-          keys[k++] = (t[cc] ^ keys[size-16]);
+          keys[bKey*(size+1) + cc + index] = (t[cc] ^ keys[bKey*size - 16 + index]);
         }
       }
     }
