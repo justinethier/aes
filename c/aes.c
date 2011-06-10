@@ -284,7 +284,10 @@ void add_round_key(unsigned char block[], int size, unsigned char key_schedule[]
  *
  */ 
 void key_schedule(unsigned char *keys, int size){
-    int i = 1, k=size;
+
+    // TODO: this algorithm is not written correctly; fails test case
+
+    int i = 1, k=0;
     // b has a value of 176 for 128-bit keys, 208 for 192-bit keys, and 240 for 256-bit keys 
     for (int b = 0; b < 176 / size; b++){
       unsigned char t[4] = {keys[size-4], keys[size-3], keys[size-2], keys[size-1]};
@@ -296,8 +299,9 @@ void key_schedule(unsigned char *keys, int size){
 
       for (int c = 0; c < 3; c++){
         unsigned char t[4] = {keys[size-4], keys[size-3], keys[size-2], keys[size-1]};
-        for (int cc = 0; cc < 4; cc++)
+        for (int cc = 0; cc < 4; cc++){
           keys[k++] = (t[cc] ^ keys[size-16]);
+        }
       }
     }
 }
