@@ -4,6 +4,23 @@
 #include <stdio.h>
 #include <string.h>
 
+// compare 2 arrays for equality
+int bytencmp (const unsigned char * const s1, const unsigned char * const s2, const size_t num)
+{
+    const unsigned char * const us1 = (const unsigned char *) s1;
+    const unsigned char * const us2 = (const unsigned char *) s2;
+ 
+    for(size_t i = (size_t)0; i < num; ++i)
+    {
+        if(us1[i] < us2[i])
+           return -1;
+        else if(us1[i] > us2[i])
+           return 1;
+    }
+ 
+    return 0;
+}
+
 /**
  * Test cases for multipyling in GF(2 ^ 8)
  */
@@ -53,10 +70,10 @@ void test_mix_columns(){
   printf("\n");
   print_block(expected, 16);
   printf("\n");
-  assert( strcmp(block, expected) == 0 );
+  assert( bytencmp(block, expected, 16) == 0 );
 
   inv_mix_columns(block, 16);
-  assert( strcmp(block, origblock) == 0);
+  assert( bytencmp(block, origblock, 16) == 0);
   print_block(block, 16);
   printf("\n");
 }
@@ -100,8 +117,7 @@ void test_key_schedule_128bitkey(){
   printf("\n");
   print_keys(expected, 176);
 
-// TODO: cannot use strcmp because it stops on 0!
-  assert( strcmp(keys, expected) == 0 );
+  assert( bytencmp(keys, expected, 176) == 0 );
 }
 
 /**

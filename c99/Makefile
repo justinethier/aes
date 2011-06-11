@@ -4,7 +4,7 @@
 # 
 CFLAGS = -g -std=c99
 
-# TODO: create a main aes executable
+# TODO: create a main aes executable or library
 test: test.o aes.o
 	gcc -o test-aes test.o aes.o
 	./test-aes
