@@ -77,7 +77,7 @@ Encrypt data using given key
  */
 unsigned char *encrypt(unsigned char *plain_text, unsigned char *key, int size){
     unsigned char *keys = (unsigned char *) malloc(size * 11),
-                  *cipher_text = (unsigned char *) malloc(size * 11); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
+                  *cipher_text = (unsigned char *) malloc(size); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
     int round = 0;
 
     memcpy(keys, key, size); // First key is the input one...
@@ -85,11 +85,12 @@ unsigned char *encrypt(unsigned char *plain_text, unsigned char *key, int size){
 
     key_schedule(keys, size); // Create round keys
     add_round_key(cipher_text, size, keys, round);
-
+//print_block(key, 16);
+//print_block(cipher_text, 16);
     for (round = 1; round < 11; round++){
         sub_bytes(cipher_text, size);
         shift_rows(cipher_text, size);
-        mix_columns(cipher_text, size);
+        if (round < 10) { mix_columns(cipher_text, size); }
         add_round_key(cipher_text, size, keys, round);
     }      
     free(keys);
@@ -98,7 +99,7 @@ unsigned char *encrypt(unsigned char *plain_text, unsigned char *key, int size){
 
 unsigned char *decrypt(unsigned char *cipher_text, unsigned char *key, int size){
     unsigned char *keys = (unsigned char *) malloc(size * 11),
-                  *plain_text = (unsigned char *) malloc(size * 11); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
+                  *plain_text = (unsigned char *) malloc(size); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
     int round = 10;
 
     memcpy(keys, key, size); // First key is the input one...
@@ -285,7 +286,7 @@ unsigned char mul_in_gf(unsigned char a, unsigned char b){
  */
 void add_round_key(unsigned char block[], int size, unsigned char key_schedule[], int round){
   for (int i = 0; i < size; i++){
-    block[i] <<= (block[i] ^ key_schedule[round * 16 + i]);  
+    block[i] = (block[i] ^ key_schedule[round * 16 + i]);  
   }  
 }
 
