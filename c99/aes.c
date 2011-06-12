@@ -8,6 +8,8 @@
  */
 #include "aes.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 const unsigned char sbox[] = 
    // 0     1     2     3     4     5     6     7     8     9     A     B     C     D     E     F
@@ -65,63 +67,57 @@ const unsigned char rcon[] =
     0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 
     0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb};
 
-/*
-TODO: need to get all test cases passing, then finish implementing encrypt and decrypt
+/**
+Encrypt data using given key
 
-  # Inputs: 128 bit block of data in form of a 16-member byte array
-  #            encryption key in form of a 16-member byte array
-  # Outputs: Encrypted byte data in an array
-  def encrypt(block, key)
-    # Create round keys
-    keys = key_schedule(key)
+@param  unsigned char *     plain_text  Plaintext message to encrypt
+@param  unsigned char *     key         Encryption key
+@param  int                 size        Size of the encryption key, in bytes
+@return unsigned char *     Dynamically allocated array of encrypted data
+ */
+unsigned char *encrypt(unsigned char *plain_text, unsigned char *key, int size){
+    unsigned char *keys = (unsigned char *) malloc(size * 11),
+                  *cipher_text = (unsigned char *) malloc(size * 11); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
+    int round = 0;
 
-    # Initial Round 
-    block = add_round_key(block, key, 0)
-    #print_block(block)
+    memcpy(keys, key, size); // First key is the input one...
+    memcpy(cipher_text, plain_text, size);
 
-    # Rounds 
-    for round in 1..10
-      block = sub_bytes(block)
-      #puts "sub_bytes"
-      #print_block(block)
-      
-      #puts "shift_rows"
-      block = shift_rows(block)
-      #print_block(block)
-      
-      #puts "mix columns"
-      block = mix_columns(block) if round < 10 # no MixColumns in last round
-      #print_block(block)
-      
-      #puts "add round key"
-      block = add_round_key(block, keys, round)
-      #print_block(block)
-    end
-    
-    block
-  end
-  
-  def decrypt(block, key)
-    # Create round keys
-    keys = key_schedule(key)
+    key_schedule(keys, size); // Create round keys
+    add_round_key(cipher_text, size, keys, round);
 
-    # Initial Round 
-    block = add_round_key(block, key, 10)
-    #print_block(block)
+    for (round = 1; round < 11; round++){
+        sub_bytes(cipher_text, size);
+        shift_rows(cipher_text, size);
+        mix_columns(cipher_text, size);
+        add_round_key(cipher_text, size, keys, round);
+    }      
+    free(keys);
+    return cipher_text;
+}
 
-    # Rounds 
-    for round in 1..10
-      block = inv_shift_rows(block)
-      block = inv_sub_bytes(block)
-      block = add_round_key(block, keys, 10 - round)
-      block = inv_mix_columns(block) if round < 10 # no MixColumns in last round
-    end
-    
-    block    
-  end
-  
-*/
+unsigned char *decrypt(unsigned char *cipher_text, unsigned char *key, int size){
+    unsigned char *keys = (unsigned char *) malloc(size * 11),
+                  *plain_text = (unsigned char *) malloc(size * 11); // TODO: may be cleaner to just pass in cipher/plain array, and destructively modify it
+    int round = 10;
 
+    memcpy(keys, key, size); // First key is the input one...
+    memcpy(plain_text, cipher_text, size);
+
+    key_schedule(keys, size); // Create round keys
+    add_round_key(plain_text, size, keys, round);
+
+    for (round = 9; round >= 0; round--){
+        inv_shift_rows(plain_text, size);
+        inv_sub_bytes(plain_text, size);
+        add_round_key(plain_text, size, keys, round);
+        if (round > 0) {
+            inv_mix_columns(plain_text, size); 
+        }
+    }      
+    free(keys);
+    return plain_text;
+}
 /**
  * Print a block of bytes
  * @param block Array of bytes
