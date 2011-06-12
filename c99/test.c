@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // compare 2 arrays for equality
@@ -120,6 +121,27 @@ void test_key_schedule_128bitkey(){
   assert( bytencmp(keys, expected, 176) == 0 );
 }
 
+  /*(Key (128): E8E9EAEBEDEEEFF0F2F3F4F5F7F8F9FA 
+Plaintext: 014BAF2278A69D331D5180103643E99A 
+Ciphertext: 6743C3D1519AB4F2CD9A78AB09A511BD */
+void test_encryption(){
+  unsigned char 
+     key[] = {0xE8, 0xE9, 0xEA, 0xEB, 0xED, 0xEE, 0xEF, 0xF0, 0xF2, 0xF3, 0xF4, 0xF5, 0xF7, 0xF8, 0xF9, 0xFA},
+     plain[] = {0x01, 0x4B, 0xAF, 0x22, 0x78, 0xA6, 0x9D, 0x33, 0x1D, 0x51, 0x80, 0x10, 0x36, 0x43, 0xE9, 0x9A},
+     cipher[] = {0x67, 0x43, 0xC3, 0xD1, 0x51, 0x9A, 0xB4, 0xF2, 0xCD, 0x9A, 0x78, 0xAB, 0x09, 0xA5, 0x11, 0xBD};
+
+  unsigned char *c = encrypt(plain, key, 16);
+  print_block(c, 16);
+  print_block(cipher, 16);
+  assert( bytencmp(c, cipher, 16) == 0 );
+  //unsigned char *p = decrypt(c, key, 16);
+  //assert( bytencmp(p, plain, 16) == 0 );
+
+  free(c);
+//  free(p);
+
+}
+
 /**
  * Run all test cases
  */
@@ -128,6 +150,7 @@ int main(){
   test_mul_in_gf();
   test_mix_columns();
   test_key_schedule_128bitkey();
+  test_encryption();
 
   printf("\nAll tests passed!\n");
   return 0;
